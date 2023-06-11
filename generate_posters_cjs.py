@@ -6,6 +6,8 @@ from reportlab.lib.pagesizes import A2
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from PIL import Image as PILImage
+from pypdf import PdfMerger
+
 
 name_to_visual_filename = {
     "Christian Steinmetz": "Screen Shot 2023-03-02 at 09.00.01 - Christian Steinmetz.png",
@@ -42,6 +44,9 @@ name_to_visual_filename = {
     "Oluremi Falowo ": "Oluremi Falowo.png",
     "Yannis Vasilakis": "Screenshot from 2023-06-09 15-48-17 - Yannis Vasilakis.png",
     "Alexander Williams": "traktor-dj-2 - Alex Williams.jpeg",
+    "Elona Shatri": "Screenshot 2023-06-10 at 21.59.00 - Elona R. Shatri.png",
+    "Eleanor Row": "pipeline - Eleanor Row.png",
+    "Teresa Pelinski": "Screenshot 2023-06-11 at 10.49.40 - Teresa Pelinski.png",
 }
 
 
@@ -118,15 +123,36 @@ def generate_poster(
     page_width = A2[0]
     page_height = A2[1]
 
-    # pre title
+    # AIM Logo
+    image_filepath = "Logos/AIM_logo.png"
+    img = PILImage.open(image_filepath)
+    width, height = img.size
+    logo_height = 40
+    factor = logo_height / height
+    width *= factor
+    height *= factor
+
+    x = 125
+    y = 1580
+
+    canvas.drawImage(
+        image_filepath,
+        x,
+        y,
+        width=width,
+        height=height,
+        preserveAspectRatio=False,
+    )
+
+    # AIM title
     text_wrapper(
         canvas,
         "AIM Summer School 2023",
         40,
-        (100, 1575),
+        (125 + 15 + width, 1590),
         "Helvetica",
         24,
-        centered=True,
+        centered=False,
         page_width=page_width,
     )
 
@@ -146,16 +172,15 @@ def generate_poster(
         page_width=page_width,
     )
     title_end = 1500 - (num_text_lines * 48)
-    print(title_end)
 
     # student name
     text_wrapper(
         canvas,
         student_name,
         40,
-        (100, title_end - 50),
+        (100, title_end - 35),
         "Helvetica",
-        30,
+        32,
         centered=True,
         page_width=page_width,
     )
@@ -165,7 +190,7 @@ def generate_poster(
         canvas,
         cohort,
         40,
-        (100, title_end - 75),
+        (100, title_end - 70),
         "Helvetica",
         24,
         centered=True,
@@ -180,12 +205,12 @@ def generate_poster(
     img = PILImage.open(image_filepath)
     width, height = img.size
 
-    max_img_width = 700
+    max_img_width = 750
     factor = max_img_width / width
     width1 = width * factor
     height1 = height * factor
 
-    max_img_height = 600
+    max_img_height = 500
     factor = max_img_height / height
     width2 = width * factor
     height2 = height * factor
@@ -198,8 +223,7 @@ def generate_poster(
         height = height1
 
     x = (page_width - width) / 2
-    y = 1200 - height
-    print(x, y)
+    y = 1260 - height
 
     canvas.drawImage(
         image_filepath,
@@ -214,25 +238,54 @@ def generate_poster(
     answered_question_wrap_width = 60
     num_text_lines = len(wrap(answered_question, answered_question_wrap_width))
 
+    wrap_width = 65
+
+    text_wrapper(
+        canvas,
+        "Finding",
+        60,
+        (175, y - 100),
+        "Helvetica-Bold",
+        36,
+    )
+
     # answered question
     text_wrapper(
         canvas,
         answered_question,
-        60,
-        (200, y - 100),
+        wrap_width,
+        (175, y - 140),
         "Helvetica",
-        30,
+        28,
     )
-    answered_question_end = y - 100 - (num_text_lines * 30)
+    answered_question_end = y - 130 - (num_text_lines * 30)
+
+    text_wrapper(
+        canvas,
+        "Question",
+        60,
+        (175, answered_question_end - 100),
+        "Helvetica-Bold",
+        36,
+    )
 
     # unanswered question
     text_wrapper(
         canvas,
         unanswered_question,
-        60,
-        (200, answered_question_end - 100),
+        wrap_width,
+        (175, answered_question_end - 140),
         "Helvetica",
-        30,
+        28,
+    )
+
+    text_wrapper(
+        canvas,
+        f"Supervisor(s): {supervisor_name}",
+        300,
+        (175, 65),
+        "Helvetica",
+        22,
     )
 
     canvas.save()
@@ -241,10 +294,11 @@ def generate_poster(
 if __name__ == "__main__":
     # ********************** Parameters to check *************************
 
-    expected_number_of_posters = 34
-    csv_file = "AIM Summer School - Posters Session Information2.csv"  # csv file name, assuming that it's in the same folder
+    expected_number_of_posters = 37
+    csv_file = "AIM Summer School - Posters Session Information3.csv"  # csv file name, assuming that it's in the same folder
     visuals_folder = "./Visuals/"
     output_dir = "./Posters/"
+    merge_pdfs = True
 
     # *******************************************************************
 
@@ -275,3 +329,11 @@ if __name__ == "__main__":
             unanswered_questions[student_index],
             visuals_folder,
         )
+
+    if merge_pdfs:
+        pdf_merger = PdfMerger()
+        for filename in os.listdir(output_dir):
+            if filename.endswith(".pdf") and "All" not in filename:
+                pdf_merger.append(os.path.join(output_dir, filename))
+        pdf_merger.write(os.path.join("All_Posters.pdf"))
+        pdf_merger.close()
