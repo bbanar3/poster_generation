@@ -47,6 +47,7 @@ name_to_visual_filename = {
     "Elona Shatri": "Screenshot 2023-06-10 at 21.59.00 - Elona R. Shatri.png",
     "Eleanor Row": "pipeline - Eleanor Row.png",
     "Teresa Pelinski": "Screenshot 2023-06-11 at 10.49.40 - Teresa Pelinski.png",
+    "Berker Banar": "Visual - Berker Banar.png"
 }
 
 
@@ -294,7 +295,7 @@ def generate_poster(
 if __name__ == "__main__":
     # ********************** Parameters to check *************************
 
-    expected_number_of_posters = 37
+    expected_number_of_posters = 38
     csv_file = "AIM Summer School - Posters Session Information3.csv"  # csv file name, assuming that it's in the same folder
     visuals_folder = "./Visuals/"
     output_dir = "./Posters/"
